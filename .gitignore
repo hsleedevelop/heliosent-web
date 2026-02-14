@@ -1,0 +1,7 @@
+node_modules
+dist
+.output
+.vinxi
+.vercel
+*.local
+src/routeTree.gen.ts
