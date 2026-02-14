@@ -1,3 +1,4 @@
+import { nitro } from 'nitro/vite';
 import { defineConfig } from 'vite'
 import tsConfigPaths from 'vite-tsconfig-paths'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
@@ -14,6 +15,7 @@ export default defineConfig({
       projects: ['./tsconfig.json'],
     }),
     tanstackStart(),
+    nitro(),
     viteReact(),
   ],
 })
