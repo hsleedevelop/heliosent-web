@@ -1,17 +1,19 @@
 export interface NowItem {
   id: string
   title: string
-  description: string
-  status: '진행 중' | '계획 중' | '완료'
+  problem: string
+  solution: string
+  status: '운영 중' | '개발 중' | '실험 중'
+  url: string
 }
 
 export interface FeaturedItem {
   id: string
   title: string
   description: string
-  category: string
+  category: '에세이' | '블로그' | '서비스'
   url: string
-  label: string
+  date: string
 }
 
 export interface AppItem {

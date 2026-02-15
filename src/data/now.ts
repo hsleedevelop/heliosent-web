@@ -2,21 +2,19 @@ import type { NowItem } from './types'
 
 export const nowItems: NowItem[] = [
   {
-    id: 'newsvalue',
-    title: '기업 뉴스 가치 분석 서비스',
-    description: '뉴스 데이터를 기반으로 기업 가치를 정량화하는 서비스를 구축하고 있습니다.',
-    status: '진행 중',
+    id: 'news-value',
+    status: '개발 중',
+    title: '기업 뉴스 가치 분석',
+    problem: '기업 관련 뉴스는 많지만, 실제 가치 판단은 어렵습니다.',
+    solution: '뉴스 흐름을 정리하고 기업 가치 관점으로 재해석합니다.',
+    url: 'https://newsvalue.heliosent.com',
   },
   {
-    id: 'dashboard',
-    title: '소셜 미디어 대시보드',
-    description: 'YouTube, X, Threads 등의 콘텐츠를 한 곳에서 요약하고 관리하는 대시보드입니다.',
-    status: '진행 중',
-  },
-  {
-    id: 'essays',
-    title: '에세이 시리즈 연재',
-    description: '기술과 사유의 교차점에서 글을 씁니다.',
-    status: '진행 중',
+    id: 'social-dashboard',
+    status: '운영 중',
+    title: '소셜 콘텐츠 요약 대시보드',
+    problem: 'X, Threads, YouTube를 각각 확인하는 것은 비효율적입니다.',
+    solution: '주요 채널을 한 곳에서 요약·정리합니다.',
+    url: 'https://dashboard.heliosent.com',
   },
 ]
