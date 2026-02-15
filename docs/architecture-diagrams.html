@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heliosent — Architecture Diagrams</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: false, 
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+            sequence: { useMaxWidth: true, htmlLabels: true },
+            classDiagram: { useMaxWidth: true, htmlLabels: true }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const el = entry.target;
+                        if (!el.hasAttribute('data-processed')) {
+                            mermaid.init(undefined, el).catch(err => console.error('Mermaid render error:', err));
+                        }
+                    }
+                });
+            }, { rootMargin: '200px' });
+
+            document.querySelectorAll('.mermaid').forEach(el => observer.observe(el));
+        });
+    </script>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/css/pretendard.css');
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --brand: #4f46e5;
+            --brand-light: #eef2ff;
+            --text: #111827;
+            --muted: #6b7280;
+            --subtle: #9ca3af;
+            --border: #e5e7eb;
+            --bg: #f9fafb;
+            --card: #ffffff;
+            --radius: 12px;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        .site-header {
+            background: rgba(255,255,255,0.95);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+        }
+        .site-header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .site-logo {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+            text-decoration: none;
+            letter-spacing: -0.02em;
+        }
+        .site-logo span { color: var(--brand); }
+        .badge {
+            font-size: 11px;
+            font-weight: 600;
+            background: var(--brand-light);
+            color: var(--brand);
+            padding: 3px 10px;
+            border-radius: 999px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .hero {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 56px 24px 40px;
+        }
+        .hero-eyebrow {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--brand);
+            margin-bottom: 12px;
+        }
+        .hero h1 {
+            font-size: clamp(28px, 4vw, 42px);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--text);
+            margin-bottom: 12px;
+            line-height: 1.15;
+        }
+        .hero p {
+            font-size: 16px;
+            color: var(--muted);
+            max-width: 520px;
+        }
+        .toc-section {
+            max-width: 1200px;
+            margin: 0 auto 48px;
+            padding: 0 24px;
+        }
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+        }
+        .toc-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.15s ease;
+        }
+        .toc-item:hover {
+            border-color: var(--brand);
+            background: var(--brand-light);
+            color: var(--brand);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79,70,229,0.1);
+        }
+        .toc-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            background: var(--brand);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+        .diagram-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03);
+            transition: box-shadow 0.2s ease;
+        }
+        .diagram-card:hover {
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        }
+        .diagram-card-header {
+            padding: 20px 28px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: linear-gradient(to right, #fafafa, #ffffff);
+        }
+        .diagram-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--brand);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .diagram-card-header-text h2 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.01em;
+        }
+        .diagram-card-header-text p {
+            font-size: 12px;
+            color: var(--subtle);
+            margin-top: 2px;
+        }
+        .diagram-type-badge {
+            margin-left: auto;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            background: var(--bg);
+            letter-spacing: 0.03em;
+        }
+        .diagram-body {
+            padding: 64px 32px;
+            overflow-x: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #fdfdfd;
+        }
+        .mermaid {
+            width: 100%;
+            min-height: 450px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .mermaid svg {
+            max-width: 100% !important;
+            height: auto !important;
+            min-height: 400px;
+        }
+        /* Override for 2nd diagram to keep it at 1x height/scale */
+        #diagram-2 .mermaid {
+            min-height: unset !important;
+            width: auto !important;
+            max-width: 700px !important;
+            margin: 0 auto;
+        }
+        #diagram-2 .mermaid svg {
+            min-height: unset !important;
+        }
+        .site-footer {
+            border-top: 1px solid var(--border);
+            background: var(--card);
+            padding: 24px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--subtle);
+        }
+        .site-footer a {
+            color: var(--brand);
+            text-decoration: none;
+        }
+        @media (max-width: 640px) {
+            .hero { padding: 40px 16px 32px; }
+            .toc-section, .content { padding-left: 16px; padding-right: 16px; }
+            .diagram-card-header { padding: 16px 20px; }
+            .diagram-body { padding: 20px 16px; }
+            .toc-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="site-header-inner">
+            <a href="https://heliosent.com" class="site-logo">Helio<span>sent</span></a>
+            <span class="badge">Architecture Docs</span>
+        </div>
+    </header>
+
+    <section class="hero">
+        <p class="hero-eyebrow">Project Analysis</p>
+        <h1>Architecture Diagrams</h1>
+        <p>Heliosent 브랜드 허브 웹사이트의 시스템 구조, 컴포넌트 관계, 데이터 흐름을 시각화한 다이어그램 모음입니다.</p>
+    </section>
+
+    <nav class="toc-section" aria-label="목차">
+        <div class="toc-grid">
+            <a href="#diagram-1" class="toc-item"><span class="toc-num">1</span>System Context</a>
+            <a href="#diagram-2" class="toc-item"><span class="toc-num">2</span>Container</a>
+            <a href="#diagram-3" class="toc-item"><span class="toc-num">3</span>Routing Structure</a>
+            <a href="#diagram-4" class="toc-item"><span class="toc-num">4</span>Interaction Flow</a>
+            <a href="#diagram-5" class="toc-item"><span class="toc-num">5</span>Data Entities</a>
+            <a href="#diagram-6" class="toc-item"><span class="toc-num">6</span>Component Architecture</a>
+            <a href="#diagram-7" class="toc-item"><span class="toc-num">7</span>Directory Structure</a>
+        </div>
+    </nav>
+
+    <main class="content">
+        <article class="diagram-card" id="diagram-1">
+            <div class="diagram-card-header">
+                <div class="diagram-num">1</div>
+                <div class="diagram-card-header-text">
+                    <h2>System Context Diagram</h2>
+                    <p>C4 Level 1 — 사용자, 시스템, 외부 서비스 간의 관계</p>
+                </div>
+                <span class="diagram-type-badge">Flowchart</span>
+            </div>
+            <div class="diagram-body">
+                <div class="mermaid">
+flowchart TB
+    subgraph Users["사용자 (Users)"]
+        Visitor[방문자]
+        KoreanUser[한국어 사용자]
+    end
+
+    subgraph System["Heliosent Web System"]
+        Frontend["Heliosent Web<br/>(React SPA)"]
+    end
+
+    subgraph External["외부 서비스"]
+        Dashboard["dashboard.heliosent.com"]
+        AppService["app.heliosent.com"]
+        Analytics["분석 도구"]
+    end
+
+    Visitor -->|"브라우저로 접속"| Frontend
+    KoreanUser -->|"브라우저로 접속"| Frontend
+    Frontend -->|"링크 연결"| Dashboard
+    Frontend -->|"링크 연결"| AppService
+    Frontend -->|"추적 (선택)"| Analytics
+
+    style Frontend fill:#4f46e5,color:#fff
+    style Users fill:#f3f4f6
+    style External fill:#fef3c7
+</div>
+            </div>
+        </article>
+
+        <article class="diagram-card" id="diagram-2">
+            <div class="diagram-card-header">
+                <div class="diagram-num">2</div>
+                <div class="diagram-card-header-text">
+                    <h2>Container Diagram</h2>
+                    <p>C4 Level 2 — 프론트엔드 컨테이너 내부 구성 요소</p>
+                </div>
+                <span class="diagram-type-badge">Flowchart</span>
+            </div>
+            <div class="diagram-body">
+                <div class="mermaid">
+flowchart TB
+    subgraph Client["클라이언트"]
+        Browser["웹 브라우저"]
+    end
+
+    subgraph Frontend["Frontend Container"]
+        Router["TanStack Router<br/>(라우팅)"]
+        Components["React Components<br/>(UI 렌더링)"]
+        DataLayer["Data Layer<br/>(정적 데이터)"]
+        Styles["Tailwind CSS v4<br/>(스타일링)"]
+    end
+
+    subgraph Build["빌드 도구"]
+        Vite["Vite 7"]
+        TypeScript["TypeScript 5.7"]
+    end
+
+    subgraph Deploy["배포"]
+        Vercel["Vercel<br/>(정적 호스팅)"]
+    end
+
+    Browser -->|"HTTP 요청"| Router
+    Router --> Components
+    Components --> DataLayer
+    Components --> Styles
+    Vite --> TypeScript
+    Build -->|"빌드 결과물"| Vercel
+    Vercel -->|"정적 파일 제공"| Browser
+
+    style Frontend fill:#dbeafe
+    style Build fill:#f3e8ff
+    style Deploy fill:#dcfce7
+</div>
+            </div>
+        </article>
+
+        <article class="diagram-card" id="diagram-3">
+            <div class="diagram-card-header">
+                <div class="diagram-num">3</div>
+                <div class="diagram-card-header-text">
+                    <h2>Routing Structure</h2>
+                    <p>TanStack Router 파일 기반 라우팅 계층 구조</p>
+                </div>
+                <span class="diagram-type-badge">Flowchart</span>
+            </div>
+            <div class="diagram-body">
+                <div class="mermaid">
+flowchart TD
+    subgraph Router["TanStack Router"]
+        RootRoute["__root.tsx<br/>(루트 레이아웃)"]
+    end
+
+    subgraph Routes["라우트 파일 (src/routes/)"]
+        Index["index.tsx<br/>/ (홈)"]
+        About["about.tsx<br/>/about"]
+        Apps["apps.tsx<br/>/apps"]
+        Work["work.tsx<br/>/work"]
+        Links["links.tsx<br/>/links"]
+    end
+
+    subgraph Layout["루트 레이아웃 컴포넌트"]
+        Header["Header<br/>(내비게이션)"]
+        Main["Main<br/>(콘텐츠 영역)"]
+        Footer["Footer<br/>(푸터)"]
+    end
+
+    RootRoute --> Header
+    RootRoute --> Main
+    RootRoute --> Footer
+    Main --> Index
+    Main --> About
+    Main --> Apps
+    Main --> Work
+    Main --> Links
+
+    style RootRoute fill:#7c3aed,color:#fff
+    style Layout fill:#f3f4f6
+</div>
+            </div>
+        </article>
+
+        <article class="diagram-card" id="diagram-4">
+            <div class="diagram-card-header">
+                <div class="diagram-num">4</div>
+                <div class="diagram-card-header-text">
+                    <h2>Component Interaction Flow</h2>
+                    <p>페이지 로드 시 컴포넌트 간 상호작용 순서</p>
+                </div>
+                <span class="diagram-type-badge">Sequence</span>
+            </div>
+            <div class="diagram-body">
+                <div class="mermaid">
+sequenceDiagram
+    participant User as 사용자
+    participant Browser as 브라우저
+    participant Router as TanStack Router
+    participant Route as Route Component
+    participant Data as Data Layer
+    participant SEO as SEO Utils
+
+    User->>Browser: URL 요청
+    Browser->>Router: 라우트 매칭
+    Router->>Route: 컴포넌트 로드
+    Route->>SEO: head() 메타 생성
+    SEO-->>Browser: 메타 태그 삽입
+    Route->>Data: 정적 데이터 import
+    Data-->>Route: 콘텐츠 반환
+    Route-->>Browser: UI 렌더링
+    Browser-->>User: 페이지 표시
+</div>
+            </div>
+        </article>
+
+        <article class="diagram-card" id="diagram-5">
+            <div class="diagram-card-header">
+                <div class="diagram-num">5</div>
+                <div class="diagram-card-header-text">
+                    <h2>Data Entity Diagram</h2>
+                    <p>src/data/types.ts 에 정의된 TypeScript 인터페이스 구조</p>
+                </div>
+                <span class="diagram-type-badge">Class</span>
+            </div>
+            <div class="diagram-body">
+                <div class="mermaid">
+classDiagram
+    class NavItem {
+        +string label
+        +string to
+    }
+
+    class NowItem {
+        +string id
+        +string title
+        +string description
+        +string status
+    }
+
+    class FeaturedItem {
+        +string id
+        +string title
+        +string description
+        +string category
+        +string url
+        +string label
+    }
+
+    class AppItem {
+        +string id
+        +string name
+        +string description
+        +string problem
+        +string url
+        +string cta
+        +string status
+    }
+
+    class LinkItem {
+        +string id
+        +string label
+        +string url
+        +string description
+        +string category
+    }
+
+    class WorkExperience {
+        +string id
+        +string period
+        +string role
+        +string company
+        +string description
+    }
+
+    class Project {
+        +string id
+        +string title
+        +string description
+        +string url
+    }
+</div>
+            </div>
+        </article>
+
+        <article class="diagram-card" id="diagram-6">
+            <div class="diagram-card-header">
+                <div class="diagram-num">6</div>
+                <div class="diagram-card-header-text">
+                    <h2>Component Architecture</h2>
+                    <p>컴포넌트 의존성 및 데이터 흐름 전체 구조</p>
+                </div>
+                <span class="diagram-type-badge">Flowchart</span>
+            </div>
+            <div class="diagram-body">
+                <div class="mermaid">
+flowchart TD
+    subgraph Root["__root.tsx"]
+        RootDocument["RootDocument"]
+    end
+
+    subgraph Layout["Layout Components"]
+        Header["Header"]
+        Footer["Footer"]
+        Analytics["Analytics"]
+    end
+
+    subgraph Shared["Shared Components"]
+        PreviewCard["PreviewCard"]
+        NotFound["NotFound"]
+        DefaultCatchBoundary["DefaultCatchBoundary"]
+    end
+
+    subgraph Pages["Page Components"]
+        HomePage["HomePage<br/>(Hero + Now + Featured)"]
+        AboutPage["AboutPage"]
+        AppsPage["AppsPage"]
+        WorkPage["WorkPage"]
+        LinksPage["LinksPage"]
+    end
+
+    subgraph Data["Data Layer"]
+        NavData["navigation.ts"]
+        NowData["now.ts"]
+        FeaturedData["featured.ts"]
+        AppsData["apps.ts"]
+        LinksData["links.ts"]
+        WorkData["work.ts"]
+        AboutData["about.ts"]
+    end
+
+    RootDocument --> Header
+    RootDocument --> Footer
+    RootDocument --> Analytics
+
+    Header --> NavData
+
+    HomePage --> NowData
+    HomePage --> FeaturedData
+    HomePage --> PreviewCard
+
+    AppsPage --> AppsData
+    LinksPage --> LinksData
+    WorkPage --> WorkData
+    AboutPage --> AboutData
+
+    style Root fill:#7c3aed,color:#fff
+    style Layout fill:#f3f4f6
+    style Shared fill:#dbeafe
+    style Pages fill:#dcfce7
+    style Data fill:#fef3c7
+</div>
+            </div>
+        </article>
+
+        <article class="diagram-card" id="diagram-7">
+            <div class="diagram-card-header">
+                <div class="diagram-num">7</div>
+                <div class="diagram-card-header-text">
+                    <h2>Project Directory Structure</h2>
+                    <p>소스 코드 디렉토리 및 파일 구성</p>
+                </div>
+                <span class="diagram-type-badge">Flowchart</span>
+            </div>
+            <div class="diagram-body">
+                <div class="mermaid">
+flowchart TB
+    subgraph Root["heliosent-web/"]
+        PackageJSON["package.json"]
+        Config["vite.config.ts<br/>tsconfig.json<br/>tailwind.config"]
+        src["src/"]
+        public["public/"]
+    end
+
+    subgraph SrcDir["src/"]
+        routes["routes/"]
+        components["components/"]
+        data["data/"]
+        styles["styles/"]
+        utils["utils/"]
+        router["router.tsx"]
+        routeTree["routeTree.gen.ts"]
+    end
+
+    subgraph RoutesDir["routes/"]
+        rootRoute["__root.tsx<br/>(루트 레이아웃)"]
+        indexRoute["index.tsx<br/>(홈)"]
+        aboutRoute["about.tsx"]
+        appsRoute["apps.tsx"]
+        workRoute["work.tsx"]
+        linksRoute["links.tsx"]
+    end
+
+    subgraph ComponentsDir["components/"]
+        headerComp["Header.tsx"]
+        footerComp["Footer.tsx"]
+        previewCard["PreviewCard.tsx"]
+        analytics["Analytics.tsx"]
+        notFound["NotFound.tsx"]
+        errorBoundary["DefaultCatchBoundary.tsx"]
+    end
+
+    subgraph DataDir["data/"]
+        types["types.ts<br/>(인터페이스 정의)"]
+        navData["navigation.ts"]
+        nowData["now.ts"]
+        featuredData["featured.ts"]
+        appsData["apps.ts"]
+        linksData["links.ts"]
+        workData["work.ts"]
+        aboutData["about.ts"]
+    end
+
+    subgraph UtilsDir["utils/"]
+        seoUtils["seo.ts"]
+    end
+
+    subgraph StylesDir["styles/"]
+        appCss["app.css<br/>(Tailwind v4)"]
+    end
+
+    Root --> src
+    Root --> public
+    Root --> Config
+    src --> RoutesDir
+    src --> ComponentsDir
+    src --> DataDir
+    src --> UtilsDir
+    src --> StylesDir
+
+    style Root fill:#f3f4f6
+    style SrcDir fill:#dbeafe
+    style RoutesDir fill:#dcfce7
+    style ComponentsDir fill:#fef3c7
+    style DataDir fill:#f3e8ff
+    style UtilsDir fill:#fecaca
+</div>
+            </div>
+        </article>
+    </main>
+
+    <footer class="site-footer">
+        <p>Heliosent Architecture Diagrams — Generated from <a href="architecture-diagrams.md">architecture-diagrams.md</a> — Rendered with <a href="https://mermaid.js.org" target="_blank" rel="noopener">Mermaid.js</a></p>
+    </footer>
+</body>
+</html>

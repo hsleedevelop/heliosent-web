@@ -1,0 +1,1402 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Heliosent — 프로젝트 분석 문서</title>
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs'
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'base',
+        securityLevel: 'loose',
+        themeVariables: {
+          primaryColor: '#4f46e5',
+          primaryTextColor: '#fff',
+          primaryBorderColor: '#4338ca',
+          lineColor: '#6b7280',
+          secondaryColor: '#f3f4f6',
+          tertiaryColor: '#fff',
+          fontFamily: 'Pretendard, -apple-system, sans-serif',
+        },
+        flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+        sequence: { useMaxWidth: true, htmlLabels: true },
+        classDiagram: { useMaxWidth: true, htmlLabels: true },
+      })
+
+      document.addEventListener('DOMContentLoaded', function () {
+        const tabButtons = document.querySelectorAll('.tab-btn')
+        const tabPanels = document.querySelectorAll('.tab-panel')
+
+        function renderVisibleMermaids(container) {
+          // Wait a tiny bit for layout to settle
+          setTimeout(() => {
+            const mermaids = container.querySelectorAll('.mermaid:not([data-processed])');
+            if (mermaids.length) {
+              mermaid.init(undefined, mermaids);
+            }
+          }, 50);
+        }
+
+        tabButtons.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const target = btn.dataset.tab
+
+            tabButtons.forEach((b) => b.classList.remove('active'))
+            tabPanels.forEach((p) => p.classList.remove('active'))
+
+            btn.classList.add('active')
+            const activePanel = document.getElementById(target)
+            activePanel.classList.add('active')
+
+            renderVisibleMermaids(activePanel);
+          })
+        })
+
+        // Render initial view
+        renderVisibleMermaids(document.querySelector('.tab-panel.active'));
+      })
+    </script>
+    <style>
+      @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/css/pretendard.css');
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --brand: #4f46e5;
+        --brand-light: #eef2ff;
+        --brand-dark: #4338ca;
+        --text: #111827;
+        --muted: #6b7280;
+        --subtle: #9ca3af;
+        --border: #e5e7eb;
+        --bg: #f9fafb;
+        --card: #ffffff;
+        --radius: 12px;
+        --shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.03);
+        --shadow-hover: 0 4px 24px rgba(0, 0, 0, 0.08);
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family:
+          Pretendard,
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+
+      /* Header */
+      .site-header {
+        background: rgba(255, 255, 255, 0.95);
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        backdrop-filter: blur(8px);
+      }
+
+      .site-header-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .site-logo {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text);
+        text-decoration: none;
+        letter-spacing: -0.02em;
+      }
+
+      .site-logo span {
+        color: var(--brand);
+      }
+
+      .badge {
+        font-size: 11px;
+        font-weight: 600;
+        background: var(--brand-light);
+        color: var(--brand);
+        padding: 3px 10px;
+        border-radius: 999px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      /* Hero */
+      .hero {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 48px 24px 32px;
+      }
+
+      .hero-eyebrow {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--brand);
+        margin-bottom: 12px;
+      }
+
+      .hero h1 {
+        font-size: clamp(28px, 4vw, 42px);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: var(--text);
+        margin-bottom: 12px;
+        line-height: 1.15;
+      }
+
+      .hero p {
+        font-size: 16px;
+        color: var(--muted);
+        max-width: 600px;
+      }
+
+      /* Tabs */
+      .tabs-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px 80px;
+      }
+
+      .tabs-nav {
+        display: flex;
+        gap: 8px;
+        border-bottom: 2px solid var(--border);
+        margin-bottom: 32px;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+
+      .tabs-nav::-webkit-scrollbar {
+        display: none;
+      }
+
+      .tab-btn {
+        padding: 14px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--muted);
+        background: none;
+        border: none;
+        cursor: pointer;
+        white-space: nowrap;
+        position: relative;
+        transition: color 0.2s;
+        font-family: inherit;
+      }
+
+      .tab-btn:hover {
+        color: var(--text);
+      }
+
+      .tab-btn.active {
+        color: var(--brand);
+      }
+
+      .tab-btn.active::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--brand);
+      }
+
+      .tab-panel {
+        display: none;
+      }
+
+      .tab-panel.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Cards */
+      .section-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        margin-bottom: 24px;
+      }
+
+      .section-card-header {
+        padding: 20px 28px;
+        border-bottom: 1px solid var(--border);
+        background: linear-gradient(to right, #fafafa, #ffffff);
+      }
+
+      .section-card-header h2 {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text);
+        letter-spacing: -0.01em;
+        margin-bottom: 4px;
+      }
+
+      .section-card-header p {
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .section-card-body {
+        padding: 28px;
+      }
+
+      /* Tree View */
+      .tree-view {
+        font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+        font-size: 13px;
+        line-height: 1.8;
+        color: var(--text);
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        overflow-x: auto;
+      }
+
+      .tree-view .dir {
+        color: #4f46e5;
+        font-weight: 600;
+      }
+      .tree-view .file {
+        color: var(--text);
+      }
+      .tree-view .comment {
+        color: var(--subtle);
+      }
+
+      /* Diagram */
+      .diagram-container {
+        background: #fdfdfd;
+        padding: 64px 32px;
+        border-radius: 8px;
+        overflow-x: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .mermaid {
+        width: 100%;
+        min-height: 450px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .mermaid svg {
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: 400px;
+      }
+
+      /* Module Grid */
+      .module-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 16px;
+      }
+
+      .module-card {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 20px;
+        transition: all 0.2s;
+      }
+
+      .module-card:hover {
+        border-color: var(--brand);
+        box-shadow: 0 2px 8px rgba(79, 70, 229, 0.1);
+      }
+
+      .module-card h4 {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--brand);
+        margin-bottom: 8px;
+        font-family: 'SF Mono', monospace;
+      }
+
+      .module-card .role {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 6px;
+      }
+
+      .module-card .desc {
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      /* Tables */
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      .data-table th,
+      .data-table td {
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .data-table th {
+        font-weight: 600;
+        color: var(--text);
+        background: var(--bg);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .data-table td {
+        color: var(--muted);
+      }
+
+      .data-table tr:hover td {
+        color: var(--text);
+        background: var(--bg);
+      }
+
+      .data-table code {
+        font-family: 'SF Mono', monospace;
+        font-size: 12px;
+        background: var(--bg);
+        padding: 2px 6px;
+        border-radius: 4px;
+        color: var(--brand);
+      }
+
+      /* Code Block */
+      .code-block {
+        background: #1e1e1e;
+        color: #d4d4d4;
+        padding: 20px;
+        border-radius: 8px;
+        font-family: 'SF Mono', monospace;
+        font-size: 13px;
+        line-height: 1.6;
+        overflow-x: auto;
+      }
+
+      .code-block .keyword {
+        color: #569cd6;
+      }
+      .code-block .interface {
+        color: #4ec9b0;
+      }
+      .code-block .type {
+        color: #4fc1ff;
+      }
+      .code-block .string {
+        color: #ce9178;
+      }
+
+      /* Info Grid */
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 24px;
+      }
+
+      .info-item {
+        background: var(--bg);
+        padding: 16px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+      }
+
+      .info-item label {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--subtle);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .info-item value {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text);
+      }
+
+      /* Footer */
+      .site-footer {
+        border-top: 1px solid var(--border);
+        background: var(--card);
+        padding: 24px;
+        text-align: center;
+        font-size: 12px;
+        color: var(--subtle);
+      }
+
+      .site-footer a {
+        color: var(--brand);
+        text-decoration: none;
+      }
+
+      @media (max-width: 640px) {
+        .hero {
+          padding: 32px 16px 24px;
+        }
+        .tabs-container {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+        .section-card-header {
+          padding: 16px 20px;
+        }
+        .section-card-body {
+          padding: 20px;
+        }
+        .module-grid {
+          grid-template-columns: 1fr;
+        }
+        .info-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a href="https://heliosent.com" class="site-logo">Helio<span>sent</span></a>
+        <span class="badge">Project Analysis</span>
+      </div>
+    </header>
+
+    <section class="hero">
+      <p class="hero-eyebrow">Documentation</p>
+      <h1>프로젝트 분석 문서</h1>
+      <p>
+        TanStack Start + React 19 + TypeScript 5.7 + Tailwind CSS v4 기반 브랜드 허브 웹사이트의
+        구조와 로직을 시각화한 분석 문서입니다.
+      </p>
+    </section>
+
+    <div class="tabs-container">
+      <nav class="tabs-nav">
+        <button class="tab-btn active" data-tab="tab-overview">개요</button>
+        <button class="tab-btn" data-tab="tab-structure">소스 구조</button>
+        <button class="tab-btn" data-tab="tab-flow">처리 흐름</button>
+        <button class="tab-btn" data-tab="tab-modules">모듈 역할</button>
+        <button class="tab-btn" data-tab="tab-architecture">시스템 아키텍처</button>
+      </nav>
+
+      <!-- Tab: Overview -->
+      <div class="tab-panel active" id="tab-overview">
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2>프로젝트 정보</h2>
+            <p>Heliosent 웹 프로젝트의 기본 정보</p>
+          </div>
+          <div class="section-card-body">
+            <div class="info-grid">
+              <div class="info-item">
+                <label>프로젝트명</label>
+                <value>Heliosent Web</value>
+              </div>
+              <div class="info-item">
+                <label>유형</label>
+                <value>브랜드 허브 웹사이트</value>
+              </div>
+              <div class="info-item">
+                <label>언어</label>
+                <value>한국어 (ko)</value>
+              </div>
+              <div class="info-item">
+                <label>배포</label>
+                <value>Vercel</value>
+              </div>
+            </div>
+
+            <h3 style="font-size: 16px; font-weight: 700; margin: 24px 0 16px">기술 스택</h3>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>구분</th>
+                  <th>기술</th>
+                  <th>버전/설명</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>프레임워크</td>
+                  <td><code>TanStack Start</code></td>
+                  <td>React 기반 풀스택 프레임워크</td>
+                </tr>
+                <tr>
+                  <td>UI 라이브러리</td>
+                  <td><code>React</code></td>
+                  <td>v19</td>
+                </tr>
+                <tr>
+                  <td>언어</td>
+                  <td><code>TypeScript</code></td>
+                  <td>v5.7</td>
+                </tr>
+                <tr>
+                  <td>스타일링</td>
+                  <td><code>Tailwind CSS</code></td>
+                  <td>v4 (@theme 디렉티브)</td>
+                </tr>
+                <tr>
+                  <td>라우팅</td>
+                  <td><code>TanStack Router</code></td>
+                  <td>파일 기반 라우팅</td>
+                </tr>
+                <tr>
+                  <td>빌드</td>
+                  <td><code>Vite</code></td>
+                  <td>v7</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h3 style="font-size: 16px; font-weight: 700; margin: 24px 0 16px">아키텍처 특징</h3>
+            <ul style="padding-left: 20px; color: var(--muted); font-size: 14px; line-height: 2">
+              <li>
+                <strong>파일 기반 라우팅</strong>: <code>src/routes/</code>의 파일 구조가 URL 경로가
+                됨
+              </li>
+              <li>
+                <strong>정적 데이터 레이어</strong>: 외부 API 없이 TypeScript 파일에서 콘텐츠 관리
+              </li>
+              <li><strong>타입 안전성</strong>: 모든 데이터에 TypeScript 인터페이스 적용</li>
+              <li>
+                <strong>컴포넌트 기반</strong>: 재사용 가능한 UI 컴포넌트와 페이지 컴포넌트 분리
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Structure -->
+      <div class="tab-panel" id="tab-structure">
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2>디렉토리 구조</h2>
+            <p>프로젝트의 디렉토리 및 파일 구성</p>
+          </div>
+          <div class="section-card-body">
+            <div class="tree-view">
+              heliosent-web/ ├── <span class="dir">docs/</span>
+              <span class="comment"># 문서화</span> │ ├── architecture-diagrams.md
+              <span class="comment"># 아키텍처 다이어그램</span> │ └── architecture-diagrams.html
+              <span class="comment"># 인터랙티브 HTML 보고서</span> ├──
+              <span class="dir">public/</span> <span class="comment"># 정적 파일</span> ├──
+              <span class="dir">src/</span> │ ├── <span class="dir">components/</span>
+              <span class="comment"># 공유 UI 컴포넌트</span> │ │ ├── Analytics.tsx
+              <span class="comment"># 분석 도구 통합</span> │ │ ├── DefaultCatchBoundary.tsx
+              <span class="comment"># 에러 경계</span> │ │ ├── Footer.tsx
+              <span class="comment"># 푸터</span> │ │ ├── Header.tsx
+              <span class="comment"># 헤더/낵게이션</span> │ │ ├── NotFound.tsx
+              <span class="comment"># 404 페이지</span> │ │ └── PreviewCard.tsx
+              <span class="comment"># 카드 컴포넌트</span> │ ├── <span class="dir">data/</span>
+              <span class="comment"># 정적 데이터 레이어</span> │ │ ├── types.ts
+              <span class="comment"># TypeScript 인터페이스</span> │ │ ├── about.ts
+              <span class="comment"># 소개/원칙</span> │ │ ├── apps.ts
+              <span class="comment"># 앱/서비스 목록</span> │ │ ├── featured.ts
+              <span class="comment"># 메인 페이지 콘텐츠</span> │ │ ├── links.ts
+              <span class="comment"># 서브도메인 + 소셜 링크</span> │ │ ├── navigation.ts
+              <span class="comment"># 낵게이션 메뉴</span> │ │ ├── now.ts
+              <span class="comment"># 현재 진행 중인 항목</span> │ │ └── work.ts
+              <span class="comment"># 경력, 프로젝트</span> │ ├── <span class="dir">routes/</span>
+              <span class="comment"># 파일 기반 라우트</span> │ │ ├── __root.tsx
+              <span class="comment"># 루트 레이아웃</span> │ │ ├── index.tsx
+              <span class="comment"># / (홈)</span> │ │ ├── about.tsx
+              <span class="comment"># /about</span> │ │ ├── apps.tsx
+              <span class="comment"># /apps</span> │ │ ├── work.tsx
+              <span class="comment"># /work</span> │ │ └── links.tsx
+              <span class="comment"># /links</span> │ ├── <span class="dir">styles/</span> │ │ └──
+              app.css <span class="comment"># Tailwind CSS v4</span> │ ├──
+              <span class="dir">utils/</span> │ │ └── seo.ts
+              <span class="comment"># SEO 유틸리티</span> │ ├── router.tsx
+              <span class="comment"># 라우터 설정</span> │ └── routeTree.gen.ts
+              <span class="comment"># 자동 생성된 라우트 트리</span>
+              ├── package.json ├── vite.config.ts ├── tsconfig.json └── README.md
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2>디렉토리 구조 다이어그램</h2>
+            <p>시각적 디렉토리 구조</p>
+          </div>
+          <div class="section-card-body">
+            <div class="diagram-container">
+<div class="mermaid">
+flowchart TB
+    subgraph Root["heliosent-web/"]
+        PackageJSON["package.json"]
+        Config["vite.config.ts<br />tsconfig.json"]
+        src["src/"]
+        public["public/"]
+    end
+
+    subgraph SrcDir["src/"]
+        routes["routes/"]
+        components["components/"]
+        data["data/"]
+        styles["styles/"]
+        utils["utils/"]
+        router["router.tsx"]
+        routeTree["routeTree.gen.ts"]
+    end
+
+    subgraph RoutesDir["routes/"]
+        rootRoute["__root.tsx<br />(루트 레이아웃)"]
+        indexRoute["index.tsx<br />(홈)"]
+        aboutRoute["about.tsx"]
+        appsRoute["apps.tsx"]
+        workRoute["work.tsx"]
+        linksRoute["links.tsx"]
+    end
+
+    subgraph ComponentsDir["components/"]
+        headerComp["Header.tsx"]
+        footerComp["Footer.tsx"]
+        previewCard["PreviewCard.tsx"]
+        analytics["Analytics.tsx"]
+        notFound["NotFound.tsx"]
+        errorBoundary["DefaultCatchBoundary.tsx"]
+    end
+
+    subgraph DataDir["data/"]
+        types["types.ts<br />(인터페이스)"]
+        navData["navigation.ts"]
+        nowData["now.ts"]
+        featuredData["featured.ts"]
+        appsData["apps.ts"]
+        linksData["links.ts"]
+        workData["work.ts"]
+        aboutData["about.ts"]
+    end
+
+    subgraph UtilsDir["utils/"]
+        seoUtils["seo.ts"]
+    end
+
+    subgraph StylesDir["styles/"]
+        appCss["app.css<br />(Tailwind v4)"]
+    end
+
+    Root --> src
+    Root --> public
+    Root --> Config
+    src --> RoutesDir
+    src --> ComponentsDir
+    src --> DataDir
+    src --> UtilsDir
+    src --> StylesDir
+
+    style Root fill:#f3f4f6
+    style SrcDir fill:#dbeafe
+    style RoutesDir fill:#dcfce7
+    style ComponentsDir fill:#fef3c7
+    style DataDir fill:#f3e8ff
+    style UtilsDir fill:#fecaca
+    style StylesDir fill:#e0e7ff
+</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Flow -->
+      <div class="tab-panel" id="tab-flow">
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2>페이지 로드 시퀀스</h2>
+            <p>사용자 요청부터 페이지 표시까지의 흐름</p>
+          </div>
+          <div class="section-card-body">
+            <div class="diagram-container">
+<div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor User as 사용자
+    participant Browser as 브라우저
+    participant Router as TanStack Router
+    participant Route as Route Component
+    participant SEO as SEO Utils
+    participant Data as Data Layer
+
+    User->>Browser: URL 요청 (/about)
+    Browser->>Router: 라우트 매칭
+    Router->>Route: about.tsx 로드
+
+    par 메타데이터 생성
+        Route->>SEO: head() 함수 호출
+        SEO-->>Browser: 메타 태그(OG, Twitter) 삽입
+    and 데이터 로드
+        Route->>Data: 정적 데이터 import
+        Data-->>Route: 타입 안전한 콘텐츠 반환
+    end
+
+    Route->>Route: React 컴포넌트 렌더링
+    Route-->>Browser: 완성된 HTML
+    Browser-->>User: 페이지 표시
+</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2>라우팅 및 레이아웃 흐름</h2>
+            <p>URL 매핑과 레이아웃 구조</p>
+          </div>
+          <div class="section-card-body">
+            <div class="diagram-container">
+<div class="mermaid">
+flowchart TD
+    Start([사용자 접속]) --> URL{URL 분석}
+    URL -->|/| Index[index.tsx<br />홈페이지]
+    URL -->|/about| About[about.tsx<br />소개]
+    URL -->|/apps| Apps[apps.tsx<br />앱 목록]
+    URL -->|/work| Work[work.tsx<br />경력]
+    URL -->|/links| Links[links.tsx<br />링크]
+
+    subgraph RootLayout["__root.tsx (루트 레이아웃)"]
+        direction TB
+        Header["Header.tsx<br />낵게이션"]
+        Main["main 태그<br />콘텐츠 영역"]
+        Footer["Footer.tsx<br />푸터"]
+    end
+
+    Index --> RootLayout
+    About --> RootLayout
+    Apps --> RootLayout
+    Work --> RootLayout
+    Links --> RootLayout
+    Header --> NavData["navigation.ts<br />메뉴 데이터"]
+
+    style RootLayout fill:#4f46e5,color:#fff
+    style Header fill:#7c3aed,color:#fff
+    style Footer fill:#7c3aed,color:#fff
+</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2>데이터 흐름</h2>
+            <p>데이터 레이어에서 컴포넌트로의 데이터 흐름</p>
+          </div>
+          <div class="section-card-body">
+            <div class="diagram-container">
+<div class="mermaid">
+flowchart LR
+    subgraph DataLayer["Data Layer (src/data/)"]
+        Types["types.ts<br />인터페이스"]
+        NavData["navigation.ts"]
+        NowData["now.ts"]
+        FeaturedData["featured.ts"]
+        AppsData["apps.ts"]
+        LinksData["links.ts"]
+        WorkData["work.ts"]
+    end
+
+    subgraph Components["Components"]
+        Header["Header.tsx"]
+        PreviewCard["PreviewCard.tsx"]
+    end
+
+    subgraph Pages["Page Routes"]
+        Home["index.tsx"]
+        About["about.tsx"]
+        Apps["apps.tsx"]
+        Work["work.tsx"]
+        Links["links.tsx"]
+    end
+
+    Types -.-> NavData
+    Types -.-> NowData
+    Types -.-> FeaturedData
+    Types -.-> AppsData
+    Types -.-> LinksData
+    Types -.-> WorkData
+
+    NavData -->|"NavItem[]"| Header
+    NowData -->|"NowItem[]"| Home
+    FeaturedData -->|"FeaturedItem[]"| Home
+    FeaturedData -->|"FeaturedItem"| PreviewCard
+    AppsData -->|"AppItem[]"| Apps
+    LinksData -->|"LinkItem[]"| Links
+    WorkData -->|"WorkExperience[]"| Work
+    WorkData -->|"Project[]"| Work
+
+    style DataLayer fill:#fef3c7
+    style Types fill:#f3e8ff
+    style Pages fill:#dcfce7
+    style Components fill:#dbeafe
+</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Modules -->
+      <div class="tab-panel" id="tab-modules">
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2>1. Core Orchestration (핵심 조정)</h2>
+            <p>진입점 및 전역 설정을 관리하는 모듈</p>
+          </div>
+          <div class="section-card-body">
+            <div class="module-grid">
+              <div class="module-card">
+                <h4>router.tsx</h4>
+                <div class="role">라우터 팩토리</div>
+                <div class="desc">
+                  TanStack Router 인스턴스 생성 및 설정<br />(scrollRestoration, preload)
+                </div>
+              </div>
+              <div class="module-card">
+                <h4>__root.tsx</h4>
+                <div class="role">루트 레이아웃</div>
+                <div class="desc">
+                  모든 페이지의 공통 레이아웃 제공<br />(Header, Footer, Analytics)
+                </div>
+              </div>
+              <div class="module-card">
+                <h4>routeTree.gen.ts</h4>
+                <div class="role">라우트 레지스트리</div>
+                <div class="desc">파일 기반 라우팅의 자동 생성된 라우트 트리</div>
+              </div>
+              <div class="module-card">
+                <h4>app.css</h4>
+                <div class="role">전역 스타일</div>
+                <div class="desc">Tailwind CSS v4 테마 변수 및 Pretendard 폰트 설정</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2>2. Engines/Logic (엔진/로직)</h2>
+            <p>핵심 처리 로직을 담당하는 모듈</p>
+          </div>
+          <div class="section-card-body">
+            <div class="module-grid">
+              <div class="module-card">
+                <h4>types.ts</h4>
+                <div class="role">타입 시스템</div>
+                <div class="desc">모든 데이터 구조의 TypeScript 인터페이스 정의</div>
+              </div>
+              <div class="module-card">
+                <h4>seo.ts</h4>
+                <div class="role">SEO 엔진</div>
+                <div class="desc">메타 태그, Open Graph, Twitter Cards 생성 유틸리티</div>
+              </div>
+              <div class="module-card">
+                <h4>TanStack Router</h4>
+                <div class="role">라우팅 엔진</div>
+                <div class="desc">파일 기반 라우팅, 코드 스플리팅, 프리로딩 관리</div>
+              </div>
+            </div>
+
+            <h3 style="font-size: 14px; font-weight: 700; margin: 24px 0 16px; color: var(--brand)">
+              데이터 인터페이스
+            </h3>
+            <div class="code-block">
+              <span class="keyword">interface</span> <span class="interface">NavItem</span> { label:
+              <span class="type">string</span>; to: <span class="type">string</span>; }
+              <span class="keyword">interface</span> <span class="interface">NowItem</span> { id;
+              title; description; status: <span class="string">'진행 중'</span>|<span class="string"
+                >'계획 중'</span
+              >|<span class="string">'완료'</span>; } <span class="keyword">interface</span>
+              <span class="interface">FeaturedItem</span> { id; title; description; category; url;
+              label; } <span class="keyword">interface</span>
+              <span class="interface">AppItem</span> { id; name; description; problem; url; cta;
+              status: <span class="string">'운영 중'</span>|<span class="string">'개발 중'</span
+              >|<span class="string">'준비 중'</span>; } <span class="keyword">interface</span>
+              <span class="interface">LinkItem</span> { id; label; url; description; category:
+              <span class="string">'subdomain'</span>|<span class="string">'social'</span>; }
+              <span class="keyword">interface</span> <span class="interface">WorkExperience</span> {
+              id; period; role; company; description; } <span class="keyword">interface</span>
+              <span class="interface">Project</span> { id; title; description; tags:
+              <span class="type">string</span>[]; url; }
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2>3. Renderers/Output (렌더러/출력)</h2>
+            <p>UI 렌더링과 페이지 출력을 담당하는 모듈</p>
+          </div>
+          <div class="section-card-body">
+            <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 16px; color: var(--text)">
+              페이지 컴포넌트 (Routes)
+            </h3>
+            <table class="data-table" style="margin-bottom: 24px">
+              <thead>
+                <tr>
+                  <th>파일</th>
+                  <th>경로</th>
+                  <th>주요 기능</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>index.tsx</code></td>
+                  <td><code>/</code></td>
+                  <td>Hero 섹션, Now 목록, Featured 항목 표시</td>
+                </tr>
+                <tr>
+                  <td><code>about.tsx</code></td>
+                  <td><code>/about</code></td>
+                  <td>소개 문구, 핵심 원칙 카드</td>
+                </tr>
+                <tr>
+                  <td><code>apps.tsx</code></td>
+                  <td><code>/apps</code></td>
+                  <td>앱/서비스 목록, 상태별 필터링</td>
+                </tr>
+                <tr>
+                  <td><code>work.tsx</code></td>
+                  <td><code>/work</code></td>
+                  <td>경력 사항, 프로젝트 포트폴리오</td>
+                </tr>
+                <tr>
+                  <td><code>links.tsx</code></td>
+                  <td><code>/links</code></td>
+                  <td>서브도메인 및 소셜 링크</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 16px; color: var(--text)">
+              공유 컴포넌트 (Shared)
+            </h3>
+            <div class="module-grid">
+              <div class="module-card">
+                <h4>Header.tsx</h4>
+                <div class="role">상단 낵게이션</div>
+                <div class="desc">navigation.ts 데이터 사용</div>
+              </div>
+              <div class="module-card">
+                <h4>Footer.tsx</h4>
+                <div class="role">하단 푸터</div>
+                <div class="desc">저작권 및 링크 정보</div>
+              </div>
+              <div class="module-card">
+                <h4>PreviewCard.tsx</h4>
+                <div class="role">콘텐츠 카드</div>
+                <div class="desc">title, description, category, url, label props</div>
+              </div>
+              <div class="module-card">
+                <h4>NotFound.tsx</h4>
+                <div class="role">404 페이지</div>
+                <div class="desc">존재하지 않는 경로 처리</div>
+              </div>
+              <div class="module-card">
+                <h4>DefaultCatchBoundary.tsx</h4>
+                <div class="role">에러 경계</div>
+                <div class="desc">런타임 에러 처리</div>
+              </div>
+              <div class="module-card">
+                <h4>Analytics.tsx</h4>
+                <div class="role">분석 스크립트</div>
+                <div class="desc">ANALYTICS_ENABLED 플래그로 제어</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2>4. Utilities/Helpers (유틸리티/보조)</h2>
+            <p>공통 도구 및 보조 기능을 제공하는 모듈</p>
+          </div>
+          <div class="section-card-body">
+            <div class="module-grid">
+              <div class="module-card">
+                <h4>navigation.ts</h4>
+                <div class="role">낵게이션 데이터</div>
+                <div class="desc">Header.tsx에서 사용</div>
+              </div>
+              <div class="module-card">
+                <h4>now.ts</h4>
+                <div class="role">현재 진행 중</div>
+                <div class="desc">index.tsx에서 표시</div>
+              </div>
+              <div class="module-card">
+                <h4>featured.ts</h4>
+                <div class="role">주요 콘텐츠</div>
+                <div class="desc">index.tsx, PreviewCard.tsx에서 사용</div>
+              </div>
+              <div class="module-card">
+                <h4>apps.ts</h4>
+                <div class="role">앱/서비스 목록</div>
+                <div class="desc">apps.tsx에서 표시</div>
+              </div>
+              <div class="module-card">
+                <h4>links.ts</h4>
+                <div class="role">링크 데이터</div>
+                <div class="desc">links.tsx에서 표시</div>
+              </div>
+              <div class="module-card">
+                <h4>work.ts</h4>
+                <div class="role">경력/프로젝트</div>
+                <div class="desc">work.tsx에서 표시</div>
+              </div>
+              <div class="module-card">
+                <h4>about.ts</h4>
+                <div class="role">소개 콘텐츠</div>
+                <div class="desc">about.tsx에서 표시</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2>컴포넌트 의존성 다이어그램</h2>
+            <p>모듈 간 의존성 관계 시각화</p>
+          </div>
+          <div class="section-card-body">
+            <div class="diagram-container">
+<div class="mermaid">
+flowchart TB
+    subgraph Core["Core Layer"]
+        Root["__root.tsx<br />RootDocument"]
+        Router["router.tsx<br />Router Config"]
+    end
+
+    subgraph Layout["Layout Components"]
+        Header["Header.tsx"]
+        Footer["Footer.tsx"]
+        Analytics["Analytics.tsx"]
+    end
+
+    subgraph Shared["Shared Components"]
+        PreviewCard["PreviewCard.tsx"]
+        NotFound["NotFound.tsx"]
+        ErrorBoundary["DefaultCatchBoundary.tsx"]
+    end
+
+    subgraph Pages["Page Components"]
+        Home["index.tsx<br />(HomePage)"]
+        About["about.tsx<br />(AboutPage)"]
+        Apps["apps.tsx<br />(AppsPage)"]
+        Work["work.tsx<br />(WorkPage)"]
+        Links["links.tsx<br />(LinksPage)"]
+    end
+
+    subgraph Data["Data Layer"]
+        Nav["navigation.ts"]
+        Now["now.ts"]
+        Featured["featured.ts"]
+        AppsData["apps.ts"]
+        LinksData["links.ts"]
+        WorkData["work.ts"]
+        AboutData["about.ts"]
+    end
+
+    subgraph Utils["Utilities"]
+        SEO["seo.ts"]
+    end
+
+    Router --> Root
+    Root --> Header
+    Root --> Footer
+    Root --> Analytics
+    Header --> Nav
+    Home --> Now
+    Home --> Featured
+    Home --> PreviewCard
+    Home --> SEO
+    About --> AboutData
+    About --> SEO
+    Apps --> AppsData
+    Apps --> SEO
+    Work --> WorkData
+    Work --> SEO
+    Links --> LinksData
+    Links --> SEO
+
+    style Core fill:#4f46e5,color:#fff
+    style Layout fill:#7c3aed,color:#fff
+    style Shared fill:#06b6d4
+    style Pages fill:#10b981
+    style Data fill:#f59e0b
+    style Utils fill:#ec4899
+</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Architecture -->
+      <div class="tab-panel" id="tab-architecture">
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2>System Context (C4 Level 1)</h2>
+            <p>사용자, 시스템, 외부 서비스 간의 관계</p>
+          </div>
+          <div class="section-card-body">
+            <div class="diagram-container">
+<div class="mermaid">
+flowchart TB
+    subgraph Users["사용자"]
+        Visitor["방문자"]
+        KoreanUser["한국어 사용자"]
+    end
+
+    subgraph System["Heliosent 시스템"]
+        Web["Heliosent Web<br />React SPA"]
+    end
+
+    subgraph External["외부 서비스"]
+        Dashboard["dashboard.heliosent.com"]
+        AppService["app.heliosent.com"]
+        AnalyticsService["분석 도구"]
+    end
+
+    Visitor -->|"브라우저로 접속"| Web
+    KoreanUser -->|"브라우저로 접속"| Web
+    Web -->|"링크"| Dashboard
+    Web -->|"링크"| AppService
+    Web -.->|"추적 (선택)"| AnalyticsService
+
+    style Web fill:#4f46e5,color:#fff
+    style Users fill:#f3f4f6
+    style External fill:#fef3c7
+</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2>Container Diagram (C4 Level 2)</h2>
+            <p>프론트엔드 컨테이너 내부 구성 요소</p>
+          </div>
+          <div class="section-card-body">
+            <div class="diagram-container">
+<div class="mermaid">
+flowchart TB
+    subgraph Client["클라이언트"]
+        Browser["웹 브라우저"]
+    end
+
+    subgraph Frontend["Frontend Container"]
+        Router["TanStack Router<br />라우팅"]
+        Components["React Components<br />UI 렌더링"]
+        DataLayer["Data Layer<br />정적 데이터"]
+        Styles["Tailwind CSS v4<br />스타일링"]
+    end
+
+    subgraph Build["빌드 시스템"]
+        Vite["Vite 7"]
+        TS["TypeScript 5.7"]
+    end
+
+    subgraph Deploy["배포"]
+        Vercel["Vercel<br />정적 호스팅"]
+    end
+
+    Browser -->|"HTTP 요청"| Router
+    Router --> Components
+    Components --> DataLayer
+    Components --> Styles
+    Vite --> TS
+    Build -->|"빌드 결과물"| Vercel
+    Vercel -->|"정적 파일"| Browser
+
+    style Frontend fill:#dbeafe
+    style Build fill:#f3e8ff
+    style Deploy fill:#dcfce7
+</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2>빌드 및 배포 흐름</h2>
+            <p>개발부터 배포까지의 프로세스</p>
+          </div>
+          <div class="section-card-body">
+            <div class="diagram-container">
+<div class="mermaid">
+flowchart LR
+    Source["소스 코드<br/>src/"] --> Dev["npm run dev<br/>개발 서버<br/>localhost:3000"]
+    Source --> Build["npm run build<br/>Vite + TSC"]
+
+    Build --> Output[".output/<br/>빌드 결과물"]
+    Output --> Preview["npm run preview<br/>로컬 프리뷰"]
+    Output --> Vercel["Vercel 배포<br/>자동 감지"]
+
+    style Source fill:#dbeafe
+    style Dev fill:#fef3c7
+    style Build fill:#f3e8ff
+    style Output fill:#dcfce7
+    style Vercel fill:#4f46e5,color:#fff
+</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2>개발 가이드</h2>
+            <p>프로젝트 작업 시 참고사항</p>
+          </div>
+          <div class="section-card-body">
+            <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--brand)">
+              새 페이지 추가
+            </h3>
+            <ol
+              style="
+                padding-left: 20px;
+                color: var(--muted);
+                font-size: 14px;
+                line-height: 2;
+                margin-bottom: 24px;
+              "
+            >
+              <li><code>src/routes/</code>에 <code>[page-name].tsx</code> 파일 생성</li>
+              <li><code>head()</code> 함수로 SEO 메타데이터 설정</li>
+              <li>컴포넌트에서 필요한 데이터 import</li>
+              <li>자동으로 라우트 등록됨 (<code>routeTree.gen.ts</code>)</li>
+            </ol>
+
+            <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--brand)">
+              콘텐츠 수정
+            </h3>
+            <p style="color: var(--muted); font-size: 14px; margin-bottom: 12px">
+              모든 콘텐츠는 <code>src/data/</code>에서 관리:
+            </p>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>수정 대상</th>
+                  <th>파일</th>
+                  <th>타입</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>낵게이션 메뉴</td>
+                  <td><code>navigation.ts</code></td>
+                  <td><code>NavItem[]</code></td>
+                </tr>
+                <tr>
+                  <td>진행 중인 작업</td>
+                  <td><code>now.ts</code></td>
+                  <td><code>NowItem[]</code></td>
+                </tr>
+                <tr>
+                  <td>메인 페이지 콘텐츠</td>
+                  <td><code>featured.ts</code></td>
+                  <td><code>FeaturedItem[]</code></td>
+                </tr>
+                <tr>
+                  <td>앱/서비스 목록</td>
+                  <td><code>apps.ts</code></td>
+                  <td><code>AppItem[]</code></td>
+                </tr>
+                <tr>
+                  <td>링크</td>
+                  <td><code>links.ts</code></td>
+                  <td><code>LinkItem[]</code></td>
+                </tr>
+                <tr>
+                  <td>경력</td>
+                  <td><code>work.ts</code></td>
+                  <td><code>WorkExperience[]</code>, <code>Project[]</code></td>
+                </tr>
+                <tr>
+                  <td>소개</td>
+                  <td><code>about.ts</code></td>
+                  <td>문자열, 배열</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h3 style="font-size: 14px; font-weight: 700; margin: 24px 0 12px; color: var(--brand)">
+              스타일 수정
+            </h3>
+            <ul style="padding-left: 20px; color: var(--muted); font-size: 14px; line-height: 2">
+              <li>Tailwind CSS v4 사용 (<code>@theme</code> 디렉티브)</li>
+              <li>
+                커스텀 색상: <code>--color-brand</code>, <code>--color-muted</code>,
+                <code>--color-subtle</code>, <code>--color-border</code>
+              </li>
+              <li>폰트: Pretendard (한국어 지원)</li>
+            </ul>
+
+            <h3 style="font-size: 14px; font-weight: 700; margin: 24px 0 12px; color: var(--brand)">
+              참고 사항
+            </h3>
+            <ul style="padding-left: 20px; color: var(--muted); font-size: 14px; line-height: 2">
+              <li><strong>테스트</strong>: 테스트 프레임워크 미설정</li>
+              <li><strong>API</strong>: 외부 API 없음 (정적 데이터만 사용)</li>
+              <li><strong>상태 관리</strong>: React 내장 useState/useEffect만 사용</li>
+              <li><strong>언어</strong>: 모든 콘텐츠는 한국어로 작성</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+      <p>
+        Heliosent Project Analysis — Generated from
+        <a href="heliosent-analysis.md">heliosent-analysis.md</a> — Rendered with
+        <a href="https://mermaid.js.org" target="_blank" rel="noopener">Mermaid.js</a>
+      </p>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,2 @@
+# Ignore HTML files with Mermaid diagrams (whitespace-sensitive)
+docs/architecture-diagrams.html

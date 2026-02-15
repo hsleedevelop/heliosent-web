@@ -5,26 +5,33 @@ alwaysApply: true
 
 # Heliosent 웹 프로젝트 규칙
 
-브랜드 허브 웹사이트. TanStack Start, React 19, TypeScript 5.7, Tailwind CSS v4. 콘텐츠는 한국어.
+브랜드 허브 웹사이트. TanStack Start, React 19, TypeScript 5.7, Tailwind CSS v4. 콘텐츠는 한국어. 패키지 매니저는 pnpm.
 
 ## 명령어
 
-- 개발: `npm run dev` (포트 3000)
-- 빌드: `npm run build` | 미리보기: `npm run preview`
-- 린트/포맷: `npm run lint`, `npm run format`
+- 개발: `pnpm run dev` (Vite, 포트 3000)
+- 빌드: `pnpm run build` (vite build + tsc --noEmit) | 미리보기: `pnpm run preview`
+- 린트: `pnpm run lint` (ESLint 9 flat config, `eslint.config.js`)
+- 포맷: `pnpm run format` (Prettier, `src/**/*.{ts,tsx,css}`)
 
-테스트 프레임워크 없음.
+테스트 프레임워크 없음. ESLint 무시: `dist`, `.output`, `src/routeTree.gen.ts`.
 
 ## 구조
 
-- **라우팅**: `src/routes/` 파일 기반. 새 `.tsx` 추가 시 자동 등록. `src/routeTree.gen.ts`는 수정하지 않음.
-- **레이아웃**: `src/routes/__root.tsx`가 Header, Footer, 메인 영역 감쌈.
-- **콘텐츠/데이터**: `src/data/`의 타입된 TS export. API/DB 없음. 컴포넌트는 여기서 직접 import. 공통 타입은 `data/types.ts`.
-- **SEO**: `src/utils/seo.ts`의 `seo()`로 메타(OG, Twitter). 각 라우트의 `head()`에서 사용.
+- **라우팅**: `src/routes/` 파일 기반. `createFileRoute('/path')` 사용. 새 `.tsx` 추가 시 자동 등록. `src/routeTree.gen.ts`는 수정하지 않음.
+- **레이아웃**: `src/routes/__root.tsx`가 Header, Footer, 메인 영역을 감싸고, HeadContent·Scripts·스타일 링크 포함. 에러 시 `DefaultCatchBoundary`, 404 시 `NotFound`.
+- **콘텐츠/데이터**: `src/data/`의 타입된 TS export. API/DB 없음. 컴포넌트에서 직접 import. 공통 타입은 `data/types.ts`. 데이터 파일: `navigation.ts`, `featured.ts`, `about.ts`, `work.ts`, `apps.ts`, `links.ts`, `now.ts`.
+- **컴포넌트**: `src/components/` — Header, Footer, PreviewCard, Analytics, DefaultCatchBoundary, NotFound.
+- **SEO**: `src/utils/seo.ts`의 `seo()`. 각 라우트에서 `head: () => ({ meta: [...seo({ title, description, url })] })` 형태로 사용.
 - **스타일**: Tailwind v4, `src/styles/app.css`의 `@theme`. 토큰: `--color-brand`, `--color-muted`, `--color-subtle`, `--color-border`. 한글 폰트 Pretendard.
+
+## 에이전트 워크플로
+
+공통 작업 절차는 `.agent/workflows/` 참고 (예: `dev.md`, `build.md`, `add-route.md`, `add-content.md`).
 
 ## 경로·코드 스타일
 
 - 경로 별칭: `~/*` → `./src/*`
 - Prettier: 세미콜론 없음, single quotes, trailing commas, 2칸 들여쓰기, 100자
 - HTML `lang="ko"`
+- 컴포넌트: 함수 선언, Tailwind만 사용, 접근성(aria-label 등) 필수

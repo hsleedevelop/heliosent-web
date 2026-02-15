@@ -5,13 +5,13 @@
 ## 요구사항
 
 - Node.js 20+
-- npm 또는 pnpm
+- pnpm
 
 ## 로컬 실행
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 브라우저에서 `http://localhost:3000` 접속.
@@ -19,7 +19,7 @@ npm run dev
 ## 빌드
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 빌드 결과물은 `.output/` 디렉토리에 생성됩니다.
@@ -27,7 +27,7 @@ npm run build
 ## 프리뷰
 
 ```bash
-npm run preview
+pnpm run preview
 ```
 
 ## Vercel 배포

@@ -5,3 +5,4 @@ dist
 .vercel
 *.local
 src/routeTree.gen.ts
+.DS_Store
