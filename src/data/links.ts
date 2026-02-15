@@ -4,7 +4,7 @@ export const links: LinkItem[] = [
   {
     id: 'notion',
     label: '이력서 / 링크 허브',
-    url: 'https://me.heliosnet.com',
+    url: 'https://me.heliosent.com',
     description: '이력서와 주요 링크를 정리한 허브 페이지입니다.',
     category: 'subdomain',
   },

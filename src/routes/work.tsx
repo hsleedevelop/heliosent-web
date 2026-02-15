@@ -87,7 +87,7 @@ function WorkPage() {
         <div className="rounded-lg border border-gray-100 p-6 text-center">
           <p className="mb-3 text-sm text-gray-500">자세한 이력은 이력서 페이지에서 확인하세요.</p>
           <a
-            href="https://me.heliosnet.com"
+            href="https://me.heliosent.com"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-sm font-medium text-gray-900 underline underline-offset-4 transition-colors hover:text-gray-600"
