@@ -7,6 +7,8 @@ import { Analytics } from '~/components/Analytics'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { NotFound } from '~/components/NotFound'
 import appCss from '~/styles/app.css?url'
+import { SITE_NAME, SITE_URL } from '~/lib/site'
+import { THEME_INIT_SCRIPT, initTheme } from '~/lib/theme'
 import { seo } from '~/utils/seo'
 
 export const Route = createRootRoute({
@@ -15,9 +17,9 @@ export const Route = createRootRoute({
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       ...seo({
-        title: 'Heliosent',
+        title: SITE_NAME,
         description: '기술로 세상을 읽다. 엔지니어링, 콘텐츠, 그리고 제품.',
-        url: 'https://heliosent.com',
+        url: SITE_URL,
       }),
     ],
     links: [
@@ -39,6 +41,10 @@ export const Route = createRootRoute({
 })
 
 function RootComponent() {
+  React.useEffect(() => {
+    initTheme()
+  }, [])
+
   return (
     <RootDocument>
       <Outlet />
@@ -59,6 +65,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
       <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
       </head>
       <body>

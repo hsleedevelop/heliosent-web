@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { links } from '~/data/links'
-import { seo } from '~/utils/seo'
+import { SITE_URL } from '~/lib/site'
+import { canonical, seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/links')({
   head: () => ({
@@ -8,9 +9,10 @@ export const Route = createFileRoute('/links')({
       ...seo({
         title: '링크',
         description: '모든 서비스와 소셜 링크를 한 곳에서 확인하세요.',
-        url: 'https://heliosent.com/links',
+        url: `${SITE_URL}/links`,
       }),
     ],
+    links: [canonical(`${SITE_URL}/links`)],
   }),
   component: LinksPage,
 })
@@ -39,9 +41,7 @@ function LinksPage() {
         </div>
 
         <div>
-          <h2 className="mb-4 text-xs font-medium uppercase tracking-wider text-gray-400">
-            소셜
-          </h2>
+          <h2 className="mb-4 text-xs font-medium uppercase tracking-wider text-gray-400">소셜</h2>
           <div className="space-y-3">
             {socialLinks.map((link) => (
               <LinkCard key={link.id} {...link} />
@@ -53,7 +53,15 @@ function LinksPage() {
   )
 }
 
-function LinkCard({ label, url, description }: { label: string; url: string; description: string }) {
+function LinkCard({
+  label,
+  url,
+  description,
+}: {
+  label: string
+  url: string
+  description: string
+}) {
   return (
     <a
       href={url}

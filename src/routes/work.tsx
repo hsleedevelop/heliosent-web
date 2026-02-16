@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { experiences, projects } from '~/data/work'
-import { seo } from '~/utils/seo'
+import { SITE_URL } from '~/lib/site'
+import { canonical, seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/work')({
   head: () => ({
@@ -8,9 +9,10 @@ export const Route = createFileRoute('/work')({
       ...seo({
         title: '경력',
         description: '경력 요약과 대표 프로젝트를 확인하세요.',
-        url: 'https://heliosent.com/work',
+        url: `${SITE_URL}/work`,
       }),
     ],
+    links: [canonical(`${SITE_URL}/work`)],
   }),
   component: WorkPage,
 })
@@ -56,10 +58,7 @@ function WorkPage() {
               <p className="mb-3 text-sm leading-relaxed text-gray-500">{proj.description}</p>
               <div className="mb-3 flex flex-wrap gap-1.5">
                 {proj.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-500"
-                  >
+                  <span key={tag} className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
                     {tag}
                   </span>
                 ))}

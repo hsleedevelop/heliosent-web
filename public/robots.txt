@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://heliosent.com/sitemap.xml
+Sitemap: https://heliosent.com/sitemap-index.xml

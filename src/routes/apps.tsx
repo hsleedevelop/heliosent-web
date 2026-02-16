@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { apps } from '~/data/apps'
-import { seo } from '~/utils/seo'
+import { SITE_URL } from '~/lib/site'
+import { canonical, seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/apps')({
   head: () => ({
@@ -8,9 +9,10 @@ export const Route = createFileRoute('/apps')({
       ...seo({
         title: '앱',
         description: 'Heliosent에서 만든 앱과 서비스를 확인하세요.',
-        url: 'https://heliosent.com/apps',
+        url: `${SITE_URL}/apps`,
       }),
     ],
+    links: [canonical(`${SITE_URL}/apps`)],
   }),
   component: AppsPage,
 })
@@ -64,7 +66,9 @@ function StatusBadge({ status }: { status: string }) {
   }
 
   return (
-    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${colorMap[status] ?? 'bg-gray-50 text-gray-500'}`}>
+    <span
+      className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${colorMap[status] ?? 'bg-gray-50 text-gray-500'}`}
+    >
       {status}
     </span>
   )

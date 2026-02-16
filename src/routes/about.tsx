@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { aboutIntro, principles } from '~/data/about'
-import { seo } from '~/utils/seo'
+import { SITE_URL } from '~/lib/site'
+import { canonical, seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/about')({
   head: () => ({
@@ -8,9 +9,10 @@ export const Route = createFileRoute('/about')({
       ...seo({
         title: '소개',
         description: '기술을 통해 생각을 구체화하는 엔지니어입니다.',
-        url: 'https://heliosent.com/about',
+        url: `${SITE_URL}/about`,
       }),
     ],
+    links: [canonical(`${SITE_URL}/about`)],
   }),
   component: AboutPage,
 })
