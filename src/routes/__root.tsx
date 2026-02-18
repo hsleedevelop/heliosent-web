@@ -8,7 +8,7 @@ import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { NotFound } from '~/components/NotFound'
 import appCss from '~/styles/app.css?url'
 import { SITE_NAME, SITE_URL } from '~/lib/site'
-import { THEME_INIT_SCRIPT, initTheme } from '~/lib/theme'
+import { THEME_INIT_SCRIPT, applyTheme } from '~/lib/theme'
 import { seo } from '~/utils/seo'
 
 export const Route = createRootRoute({
@@ -42,7 +42,7 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   React.useEffect(() => {
-    initTheme()
+    applyTheme()
   }, [])
 
   return (

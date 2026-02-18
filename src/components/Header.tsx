@@ -5,16 +5,16 @@ import { BLOG_URL } from '~/lib/site'
 import type { ThemePref } from '~/lib/theme'
 import {
   applyTheme,
-  broadcast,
-  getStoredPref,
-  setStoredPref,
-  subscribeThemeChanges,
+  getThemePref,
+  onSystemThemeChange,
+  setThemePref,
 } from '~/lib/theme'
 
 const PREF_CYCLE: ThemePref[] = ['light', 'dark']
 const PREF_LABELS: Record<ThemePref, string> = {
   light: '라이트 모드',
   dark: '다크 모드',
+  system: '시스템 설정 따르기',
 }
 
 function SunIcon() {
@@ -95,23 +95,32 @@ function ThemeToggle() {
   const [mounted, setMounted] = React.useState(false)
 
   React.useEffect(() => {
-    setPref(getStoredPref() ?? 'system')
+    setPref(getThemePref())
     setMounted(true)
 
-    const unsub = subscribeThemeChanges((incoming) => {
-      setPref(incoming)
-      applyTheme(incoming)
+    const unsubSystem = onSystemThemeChange(() => {
+      const p = getThemePref()
+      setPref(p)
+      applyTheme(p)
     })
-    return unsub
+    const onStorage = () => {
+      const p = getThemePref()
+      setPref(p)
+      applyTheme(p)
+    }
+    window.addEventListener('storage', onStorage)
+    return () => {
+      unsubSystem()
+      window.removeEventListener('storage', onStorage)
+    }
   }, [])
 
   const cycle = () => {
     const nextIndex = (PREF_CYCLE.indexOf(pref) + 1) % PREF_CYCLE.length
     const next = PREF_CYCLE[nextIndex]
     setPref(next)
-    setStoredPref(next)
+    setThemePref(next)
     applyTheme(next)
-    broadcast(next)
   }
 
   if (!mounted) {
