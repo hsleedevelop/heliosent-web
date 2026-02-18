@@ -150,9 +150,9 @@ export function Header() {
         <Link
           to="/"
           className="text-lg font-semibold tracking-tight text-gray-900"
-          aria-label="Heliosent 홈"
+          aria-label="HelioSent 홈"
         >
-          Heliosent
+          HelioSent
         </Link>
 
         <div className="flex items-center gap-6">

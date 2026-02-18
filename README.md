@@ -1,4 +1,4 @@
-# Heliosent
+# HelioSent
 
 브랜드 허브 웹사이트. TanStack Start + Tailwind CSS v4.
 

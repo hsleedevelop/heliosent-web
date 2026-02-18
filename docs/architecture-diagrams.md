@@ -1,4 +1,4 @@
-# Heliosent Project Architecture Diagrams
+# HelioSent Project Architecture Diagrams
 
 ## 1. System Context Diagram (C4 Level 1)
 
@@ -9,8 +9,8 @@ flowchart TB
         KoreanUser[한국어 사용자]
     end
 
-    subgraph System["Heliosent Web System"]
-        Frontend["Heliosent Web<br/>(React SPA)"]
+    subgraph System["HelioSent Web System"]
+        Frontend["HelioSent Web<br/>(React SPA)"]
     end
 
     subgraph External["외부 서비스"]

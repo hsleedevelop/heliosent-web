@@ -27,7 +27,7 @@ export function HeroSection() {
           rel="noopener noreferrer"
           className="inline-flex items-center rounded-md border border-gray-200 bg-white px-6 py-3 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-50"
         >
-          Heliosent 앱 허브 보기
+          HelioSent 앱 허브 보기
         </a>
       </div>
     </section>

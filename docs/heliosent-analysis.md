@@ -1,4 +1,4 @@
-# Heliosent 웹 프로젝트 분석 문서
+# HelioSent 웹 프로젝트 분석 문서
 
 > TanStack Start + React 19 + TypeScript 5.7 + Tailwind CSS v4 기반 브랜드 허브 웹사이트
 
@@ -10,7 +10,7 @@
 
 | 항목           | 내용                                                      |
 | -------------- | --------------------------------------------------------- |
-| **프로젝트명** | Heliosent Web                                             |
+| **프로젝트명** | HelioSent Web                                             |
 | **유형**       | 브랜드 허브 웹사이트 (정적 콘텐츠)                        |
 | **기술 스택**  | TanStack Start, React 19, TypeScript 5.7, Tailwind CSS v4 |
 | **언어**       | 한국어 (ko)                                               |
@@ -403,8 +403,8 @@ flowchart TB
         KoreanUser["한국어 사용자"]
     end
 
-    subgraph System["Heliosent 시스템"]
-        Web["Heliosent Web<br/>React SPA"]
+    subgraph System["HelioSent 시스템"]
+        Web["HelioSent Web<br/>React SPA"]
     end
 
     subgraph External["외부 서비스"]

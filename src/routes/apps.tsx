@@ -8,7 +8,7 @@ export const Route = createFileRoute('/apps')({
     meta: [
       ...seo({
         title: '앱',
-        description: 'Heliosent에서 만든 앱과 서비스를 확인하세요.',
+        description: 'HelioSent에서 만든 앱과 서비스를 확인하세요.',
         url: `${SITE_URL}/apps`,
       }),
     ],

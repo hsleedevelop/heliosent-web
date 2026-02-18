@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Heliosent — brand hub website (브랜드 허브 웹사이트) for showcasing engineering work, apps, and content. Built with TanStack Start (SSR/SSG via Nitro), React 19, TypeScript 5.7, Tailwind CSS v4, and Vite 7. All content is in Korean. Deployed on Vercel.
+HelioSent — brand hub website (브랜드 허브 웹사이트) for showcasing engineering work, apps, and content. Built with TanStack Start (SSR/SSG via Nitro), React 19, TypeScript 5.7, Tailwind CSS v4, and Vite 7. All content is in Korean. Deployed on Vercel.
 
 ## Commands
 

@@ -5,7 +5,7 @@ export const experiences: WorkExperience[] = [
     id: 'exp-1',
     period: '2024 - 현재',
     role: '풀스택 엔지니어 / 1인 창업',
-    company: 'Heliosent',
+    company: 'HelioSent',
     description: '브랜드 허브, 뉴스 가치 분석 서비스, 소셜 미디어 대시보드 등을 설계하고 개발합니다.',
   },
   {
@@ -64,7 +64,7 @@ export const projects: Project[] = [
   },
   {
     id: 'proj-3',
-    title: 'Heliosent 브랜드 허브',
+    title: 'HelioSent 브랜드 허브',
     description:
       '개인 브랜드와 서비스를 하나의 허브로 연결하는 정적 웹사이트입니다. TanStack Start로 구축했습니다.',
     tags: ['TypeScript', 'TanStack Start', 'Tailwind CSS'],

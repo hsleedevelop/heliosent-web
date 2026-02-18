@@ -1,9 +1,9 @@
 ---
-description: Heliosent 브랜드 허브 프로젝트 구조·규칙 (TanStack Start, React 19, TS, Tailwind v4)
+description: HelioSent 브랜드 허브 프로젝트 구조·규칙 (TanStack Start, React 19, TS, Tailwind v4)
 alwaysApply: true
 ---
 
-# Heliosent 웹 프로젝트 규칙
+# HelioSent 웹 프로젝트 규칙
 
 브랜드 허브 웹사이트. TanStack Start, React 19, TypeScript 5.7, Tailwind CSS v4. 콘텐츠는 한국어. 패키지 매니저는 pnpm.
 

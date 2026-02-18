@@ -4,7 +4,7 @@ export const apps: AppItem[] = [
   {
     id: 'app-hub',
     name: '앱 허브',
-    description: 'Heliosent에서 만든 모든 애플리케이션을 한 곳에서 확인할 수 있는 허브입니다.',
+    description: 'HelioSent에서 만든 모든 애플리케이션을 한 곳에서 확인할 수 있는 허브입니다.',
     problem: '흩어진 서비스들을 하나의 진입점으로 통합합니다.',
     url: 'https://app.heliosent.com',
     cta: '앱 허브 열기',

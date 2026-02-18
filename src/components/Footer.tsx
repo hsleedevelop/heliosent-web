@@ -8,7 +8,7 @@ export function Footer() {
       <div className="mx-auto max-w-3xl px-6 py-12">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm text-gray-400">&copy; {year} Heliosent. All rights reserved.</p>
+            <p className="text-sm text-gray-400">&copy; {year} HelioSent. All rights reserved.</p>
           </div>
 
           <div className="flex flex-wrap gap-6">
