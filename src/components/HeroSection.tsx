@@ -5,12 +5,10 @@ export function HeroSection() {
       aria-label="소개"
     >
       <h1 className="mb-6 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-        기술로 세상을 읽고, 제품으로 답합니다
+      Build What Creates Value.
       </h1>
       <p className="mb-10 text-lg leading-relaxed text-gray-500">
-        뉴스 데이터로 기업 가치를 해석하고
-        <br className="hidden sm:block" />
-        소셜 콘텐츠를 한 곳에서 요약·관리하는 도구를 만듭니다.
+      Designed with clarity. Built with discipline.
       </p>
       <div className="flex flex-wrap justify-center gap-4">
         <a
